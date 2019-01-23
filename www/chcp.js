@@ -19,7 +19,7 @@ var exec = require('cordova/exec'),
 
 // Called when Cordova is ready for work.
 // Here we will send default callback to the native side through which it will send to us different events.
-channel.onCordovaReady.subscribe(function() {
+channel.onCordovaReady.subscribe(function () {
   ensureCustomEventExists();
   exec(nativeCallback, null, PLUGIN_NAME, pluginNativeMethod.INITIALIZE, []);
 });
@@ -36,6 +36,16 @@ function nativeCallback(msg) {
   if (resultObj.action == null) {
     console.log('Action is not provided, skipping');
     return;
+  }
+
+  // handle external path change event
+  if (resultObj.action === 'chcp_externalPathChange') {
+
+    // update ionic web view if it exists
+    if(window.Ionic && window.Ionic.WebView && resultObj.data) {
+      window.Ionic.WebView.setServerBasePath(resultObj.data.path)
+      return;
+    }
   }
 
   broadcastEventFromNative(resultObj);
@@ -66,7 +76,7 @@ function processMessageFromNative(msg) {
     if (resultObj.hasOwnProperty('action')) {
       actionId = resultObj.action;
     }
-  } catch (err) {}
+  } catch (err) { }
 
   return {
     action: actionId,
@@ -76,7 +86,7 @@ function processMessageFromNative(msg) {
 }
 
 function callNativeMethod(methodName, options, callback) {
-  var innerCallback = function(msg) {
+  var innerCallback = function (msg) {
     var resultObj = processMessageFromNative(msg);
     if (callback !== undefined && callback != null) {
       callback(resultObj.error, resultObj.data);
@@ -103,7 +113,7 @@ function ensureCustomEventExists() {
     return;
   }
 
-  var CustomEvent = function(event, params) {
+  var CustomEvent = function (event, params) {
     params = params || {
       bubbles: false,
       cancelable: false,
@@ -198,7 +208,7 @@ var chcp = {
    * @param {Object} options - options to set
    * @param {Callback(error)} callback - callback to call when options are set
    */
-  configure: function(options, callback) {
+  configure: function (options, callback) {
     if (options === undefined || options == null) {
       return;
     }
@@ -214,18 +224,18 @@ var chcp = {
    * @param {Callback()} onStoreOpenCallback - called when user redirects to the Store
    * @param {Callback()} onUserDismissedDialogCallback - called when user declines to go to the Store
    */
-  requestApplicationUpdate: function(message, onStoreOpenCallback, onUserDismissedDialogCallback) {
+  requestApplicationUpdate: function (message, onStoreOpenCallback, onUserDismissedDialogCallback) {
     if (message == undefined || message.length == 0) {
       return;
     }
 
-    var onSuccessInnerCallback = function(msg) {
+    var onSuccessInnerCallback = function (msg) {
       if (onStoreOpenCallback) {
         onStoreOpenCallback();
       }
     };
 
-    var onFailureInnerCallback = function(msg) {
+    var onFailureInnerCallback = function (msg) {
       if (onUserDismissedDialogCallback) {
         onUserDismissedDialogCallback();
       }
@@ -241,7 +251,7 @@ var chcp = {
    * @param {Callback(error, data)} callback - called when native side finished update process
    * @param {Object} options - additional options, such as "config-url" and additional http headers.
    */
-  fetchUpdate: function(callback, options) {
+  fetchUpdate: function (callback, options) {
     callNativeMethod(pluginNativeMethod.FETCH_UPDATE, options, callback);
   },
 
@@ -250,7 +260,7 @@ var chcp = {
    *
    * @param {Callback(error)} callback - called when native side finishes installation process
    */
-  installUpdate: function(callback) {
+  installUpdate: function (callback) {
     callNativeMethod(pluginNativeMethod.INSTALL_UPDATE, null, callback);
   },
 
@@ -262,7 +272,7 @@ var chcp = {
    *
    * @param {Callback(error, data)} callback - called, when information is retrieved from the native side.
    */
-  isUpdateAvailableForInstallation: function(callback) {
+  isUpdateAvailableForInstallation: function (callback) {
     callNativeMethod(pluginNativeMethod.IS_UPDATE_AVAILABLE_FOR_INSTALLATION, null, callback);
   },
 
@@ -272,7 +282,7 @@ var chcp = {
    *
    * @param {Callback(error, data)} callback - called, when information is retrieved from the native side.
    */
-  getVersionInfo: function(callback) {
+  getVersionInfo: function (callback) {
     callNativeMethod(pluginNativeMethod.GET_INFO, null, callback);
   }
 };
