@@ -149,7 +149,7 @@ static NSString *const DEFAULT_STARTING_PAGE = @"index.html";
         [_pluginInternalPrefs saveToUserDefaults];
     }
     
-    NSLog(@"Currently running release version %@", _pluginInternalPrefs.currentReleaseVersionName);
+    NSLog(@"Currently running release version 444 %@", _pluginInternalPrefs.currentReleaseVersionName);
     
     // init file structure for www files
     _filesStructure = [[HCPFilesStructure alloc] initWithReleaseVersion:_pluginInternalPrefs.currentReleaseVersionName];
@@ -247,8 +247,13 @@ static NSString *const DEFAULT_STARTING_PAGE = @"index.html";
  *  @param url url to load
  */
 - (void)loadURL:(NSString *)url {
+    // send path to js
+    [self sendExternalPathToJs];
+
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSURL *loadURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", _filesStructure.wwwFolder.absoluteString, url]];
+        // NSURL *loadURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", _filesStructure.wwwFolder.absoluteString, url]];
+
+        NSURL *loadURL = [NSURL URLWithString:url];
         NSURLRequest *request = [NSURLRequest requestWithURL:loadURL
                                                  cachePolicy:NSURLRequestReloadIgnoringCacheData
                                              timeoutInterval:10000];
@@ -275,13 +280,28 @@ static NSString *const DEFAULT_STARTING_PAGE = @"index.html";
     if (![[NSFileManager defaultManager] fileExistsAtPath:indexPageExternalURL.path]) {
         return;
     }
-    
+
+    // send path to js
+    [self sendExternalPathToJs];
+
     // rewrite starting page www folder path: should load from external storage
     if ([self.viewController isKindOfClass:[CDVViewController class]]) {
-        ((CDVViewController *)self.viewController).wwwFolderName = _filesStructure.wwwFolder.absoluteString;
+
+        NSLog(@"JOESTUFFHERETAG NOT setting folder name");
+        // ((CDVViewController *)self.viewController).wwwFolderName = _filesStructure.wwwFolder.absoluteString;
     } else {
         NSLog(@"HotCodePushError: Can't make starting page to be from external storage. Main controller should be of type CDVViewController.");
     }
+}
+
+/**
+ *  Sends the path to js so it can update cordova web view
+ */
+- (void)sendExternalPathToJs {
+    NSLog(@"JOESTUFFHERETAG Setting JS path in resetIndexPage");
+    NSDictionary *data = @{@"path": _filesStructure.wwwFolder.path};
+    CDVPluginResult *externalPathPluginResult = [CDVPluginResult pluginResultWithActionName:@"chcp_externalPathChange" data:data error:nil];
+    [self invokeDefaultCallbackWithMessage:externalPathPluginResult];
 }
 
 /**
