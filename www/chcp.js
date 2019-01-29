@@ -43,7 +43,8 @@ function nativeCallback(msg) {
 
     // update ionic web view if it exists
     if(window.Ionic && window.Ionic.WebView && resultObj.data) {
-      window.Ionic.WebView.setServerBasePath(resultObj.data.path)
+      window.Ionic.WebView.setServerBasePath(resultObj.data.path);
+      window.Ionic.WebView.persistServerBasePath();
       return;
     }
   }
