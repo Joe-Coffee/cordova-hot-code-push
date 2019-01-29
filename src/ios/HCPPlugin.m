@@ -149,7 +149,7 @@ static NSString *const DEFAULT_STARTING_PAGE = @"index.html";
         [_pluginInternalPrefs saveToUserDefaults];
     }
     
-    NSLog(@"Currently running release version 444 %@", _pluginInternalPrefs.currentReleaseVersionName);
+    NSLog(@"JOESTUFFHERETAG Currently running release version 54321 %@", _pluginInternalPrefs.currentReleaseVersionName);
     
     // init file structure for www files
     _filesStructure = [[HCPFilesStructure alloc] initWithReleaseVersion:_pluginInternalPrefs.currentReleaseVersionName];
@@ -248,6 +248,7 @@ static NSString *const DEFAULT_STARTING_PAGE = @"index.html";
  */
 - (void)loadURL:(NSString *)url {
     // send path to js
+    NSLog(@"JOESTUFFHERETAG Setting JS path in loadURL");
     [self sendExternalPathToJs];
 
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -282,7 +283,8 @@ static NSString *const DEFAULT_STARTING_PAGE = @"index.html";
     }
 
     // send path to js
-    [self sendExternalPathToJs];
+    NSLog(@"JOESTUFFHERETAG (disabled) Setting JS path in resetIndexPage");
+    // [self sendExternalPathToJs];
 
     // rewrite starting page www folder path: should load from external storage
     if ([self.viewController isKindOfClass:[CDVViewController class]]) {
@@ -298,7 +300,7 @@ static NSString *const DEFAULT_STARTING_PAGE = @"index.html";
  *  Sends the path to js so it can update cordova web view
  */
 - (void)sendExternalPathToJs {
-    NSLog(@"JOESTUFFHERETAG Setting JS path in resetIndexPage");
+    NSLog(@"JOESTUFFHERETAG Setting JS path in private method: %@", _filesStructure.wwwFolder.path);
     NSDictionary *data = @{@"path": _filesStructure.wwwFolder.path};
     CDVPluginResult *externalPathPluginResult = [CDVPluginResult pluginResultWithActionName:@"chcp_externalPathChange" data:data error:nil];
     [self invokeDefaultCallbackWithMessage:externalPathPluginResult];
